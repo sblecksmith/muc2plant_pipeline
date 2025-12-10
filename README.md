@@ -22,7 +22,7 @@ It performs quality control, removes host reads, profiles microbial taxa, and su
 | Step | Tool | Description |
 |------|------|--------------|
 | 1. Quality control | FastQC | Assess read quality |
-| 2. Host read removal | Bowtie2 | Remove host (e.g. human or macaque) reads |
+| 2. Host read removal | Bowtie2 | Remove host reads |
 | 3. Trimming | Fastp | Trim adapters and low-quality bases |
 | 4. Merging | Fastp | Merge paired end reads 
 | 5. Taxonomic profiling | MetaPhlAn | Read based classification from PE reads |
