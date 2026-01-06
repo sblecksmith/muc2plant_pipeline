@@ -88,9 +88,9 @@ eval "$(mamba shell hook --shell bash)"
 mamba create -n snakemake_env -c conda-forge -c bioconda snakemake=9.11.4
 conda activate snakemake_env
 ```
- 6. Install slurm executor plugin for snakemake v8+ (only needs to be done once):
+ 6. Install slurm executor plugin for snakemake v8+ (only needs to be done once), specify version:
  ```bash
-pip install snakemake-executor-plugin-slurm
+pip install snakemake-executor-plugin-slurm==1.9.0
 ```
  7. Quick check to make sure there are no errors (dry run):
 ```bash
