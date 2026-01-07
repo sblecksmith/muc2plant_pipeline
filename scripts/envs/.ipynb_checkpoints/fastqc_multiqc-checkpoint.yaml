@@ -1,8 +1,0 @@
-name: fast_multiqc
-channels:
-  - bioconda
-  - conda-forge
-  - defaults
-dependencies:
-  - multiqc=1.23
-  - fastqc=0.12.1

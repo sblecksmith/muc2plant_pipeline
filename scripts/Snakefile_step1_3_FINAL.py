@@ -23,7 +23,7 @@
 #    conda activate snakemake_env
 #
 # 6. Install slurm executor plugin for snakemake v8+ (only needs to be done once):
-#    pip install snakemake-executor-plugin-slurm
+#    pip install snakemake-executor-plugin-slurm==1.9.0
 #
 # 7. Quick check to make sure there are no errors (dry run):
 #    snakemake -s scripts/Snakefile --configfile config.yaml -n

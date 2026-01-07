@@ -12,3 +12,4 @@ sample_sheet.txt
 **/.ipynb_checkpoints/
 __pycache__/
 *.pyc
+scripts/envs/. scripts/envs/.. scripts/envs/.ipynb_checkpoints
