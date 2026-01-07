@@ -1,0 +1,10 @@
+name: humann3.9
+channels:
+  - biobakery
+  - conda-forge
+  - defaults
+dependencies:
+  - gcc=13
+  - python=3.7
+  - humann=3.9
+  - metaphlan=4.1.1
