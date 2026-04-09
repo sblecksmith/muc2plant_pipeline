@@ -434,8 +434,8 @@ rule summarize_fastp_reports:
 ########################################
 rule megahit:
     input:
-        r1="/quobyte/dglemaygrp/sblecksmith/filterbytile_test/{sample}_R1_filtered.fastq.gz",
-        r2="/quobyte/dglemaygrp/sblecksmith/filterbytile_test/{sample}_R2_filtered_synced.fastq.gz",
+        r1="fastp_output/pairedend/{sample}_R1_paired.fastq.gz",
+        r2="fastp_output/pairedend/{sample}_R2_paired.fastq.gz",
     output:
         contigs = "megahit_output/{sample}.contigs.fa.gz",
     conda: config["conda_envs"]["megahit"]
