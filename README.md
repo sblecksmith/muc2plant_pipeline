@@ -1,57 +1,90 @@
-# Lemay Lab Metagenomics Pipeline (Snakemake)
-
-A reproducible Snakemake workflow for processing 150 bp PE shotgun metagenomic sequencing data.  
-Developed by Nithya K Kumar (Lemay Lab, UC Davis, USDA).
-
 ---
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+# Muc2plant Snakemake Pipeline
+
+A reproducible Snakemake workflow for calculating the mucin to plant
+CAZyme ratio from 150 bp PE shotgun metagenomic sequencing data. Written
+by Sarah E. Blecksmith (Lemay Lab, UC Davis, USDA) and built from the
+[metagenomics processing
+pipeline](https://github.com/nithyak2/lemaylab_metagenomics_pipeline)
+developed by Nithya K. Kumar (Lemay Lab, UC Davis, USDA).
+
+In this pipeline, CAZyme genes are annotated with dbcan.
+
+Jinfang Zheng, Qiwei Ge, Yuchen Yan, Xinpeng Zhang, Le Huang, and Yanbin
+Yin. Dbcan3: automated carbohydrate-active enzyme and substrate
+annotation. *Nucleic Acids Research*, pages gkad328, 2023
+
+The dbcan team has excellent documentation available at:
+
+<https://run-dbcan.readthedocs.io/en/latest/index.html>
+
+They also have a Nextflow pipeline available:
+
+<https://run-dbcan.readthedocs.io/en/latest/nextflow/index.html>
+
+Their workflow has been adapted here in Snakemake in order to build off
+the Lemay Lab metagenomic analysis pipeline created by Nithya K. Kumar.
+
+------------------------------------------------------------------------
 
 ## Overview
-This pipeline streamlines the analysis of shotgun metagenomic sequencing data.  
-It performs quality control, removes host reads, profiles microbial taxa, and summarizes results in a reproducible and modular framework.
 
-**Core features:**
-- Automated workflow management using **Snakemake**
-- Reproducible environments using **Conda**
-- Modular structure for easy extension
-- Example configuration for quick setup
+This pipeline streamlines the analysis of shotgun metagenomic sequencing
+data.\
+It performs quality control, removes host reads, profiles microbial
+taxa, and summarizes results in a reproducible and modular framework.
 
----
+**Core features:** - Automated workflow management using **Snakemake** -
+Reproducible environments using **Conda** - Modular structure for easy
+extension - Example configuration for quick setup
 
-##  Workflow Summary
+------------------------------------------------------------------------
 
-| Step | Tool | Description |
-|------|------|--------------|
-| 1. Quality control | FastQC | Assess read quality |
-| 2. Host read removal | Bowtie2 | Remove host reads |
-| 3. Trimming | Fastp | Trim adapters and low-quality bases |
-| 4. Merging | Fastp | Merge paired end reads 
-| 5. Taxonomic profiling | MetaPhlAn | Read based classification from PE reads |
+## Workflow Summary
+
+| Step                    | Tool      | Description                             |
+|------------------|------------------|-----------------------------------|
+| 1\. Quality control     | FastQC    | Assess read quality                     |
+| 2\. Host read removal   | Bowtie2   | Remove host reads                       |
+| 3\. Trimming            | Fastp     | Trim adapters and low-quality bases     |
+| 4\. Merging             | Fastp     | Merge paired end reads                  |
+| 5\. Taxonomic profiling | MetaPhlAn | Read based classification from PE reads |
 
 ## snakemake simplified DAG (rulegraph)
+
 ![main](pipeline_DAG.png)
 
-
----
-
+------------------------------------------------------------------------
 
 ## Clone the repository
-```bash
-git clone https://github.com/nithyak2/lemaylab_metagenomics_pipeline
-cd metagenomics-pipeline
+
+``` bash
+git clone https://github.com/sblecksmith/muc2plant_pipeline
+cd muc2plant_pipeline
 ```
 
+| USAGE INSTRUCTIONS                    |
+|---------------------------------------|
+| . Navigate to project root directory: |
+| \`\`bash                              |
+| cd /path/to/project_root              |
+| \`\`                                  |
 
- USAGE INSTRUCTIONS
- ------------------
-1.   Navigate to project root directory:
-```bash
-cd /path/to/project_root
-```
- 
-2. Copy config/config.yaml and edit paths for your system. **This should be the only file you need to edit, you should not need to edit the Snakefile**
+2.  Copy config/config_muc2plant.yaml and edit the paths for your
+    system. **This should be the only file you need to edit, you should
+    not need to edit the Snakefile**
 
-3. Create sample sheet (sample_sheet.txt) with columns: sample_name, r1_path, r2_path
-```bash
+3.  Create sample sheet (sample_sheet.txt) with columns: sample_name,
+    long sample, r1_path, r2_path
+
+    Use the code below, also in scripts/make_sample_sheet.sh
+
+``` bash
 # To auto-generate from fastq_files directory, run:
 # edit this based on your file names 
 # Create the sample sheet from your existing files
@@ -65,87 +98,91 @@ cd /path/to/project_root
  
 # Example output:
 # Tab-separated file with these columns:
-# sample_name	long_sample	r1_path	r2_path
-# 109_C1_E	109_C1_E_S18_L006	fastq_files/109_C1_E_S18_L006_R1_001.fastq.gz	fastq_files/109_C1_E_S18_L006_R2_001.fastq.gz
-# 109_C1_N	109_C1_N_S66_L006	fastq_files/109_C1_N_S66_L006_R1_001.fastq.gz	fastq_files/109_C1_N_S66_L006_R2_001.fastq.gz
+# sample_name   long_sample r1_path r2_path
+# 109_C1_E  109_C1_E_S18_L006   fastq_files/109_C1_E_S18_L006_R1_001.fastq.gz   fastq_files/109_C1_E_S18_L006_R2_001.fastq.gz
+# 109_C1_N  109_C1_N_S66_L006   fastq_files/109_C1_N_S66_L006_R1_001.fastq.gz   fastq_files/109_C1_N_S66_L006_R2_001.fastq.gz
 ```
-Note: The "long_sample" column is required for the fastqc rule. If your raw fastq files do not have these added characters, you can simply make the long_sample column identical to the sample_name column. This is a quick fix so you don't need to modify the variable calls in downstream rules. 
 
-4. Get required files from MetaPhlAn github (this may need to be updated if databases change)
-```bash
-wget https://raw.githubusercontent.com/biobakery/MetaPhlAn/master/metaphlan/utils/sgb_to_gtdb_profile.py -O scripts/sgb_to_gtdb_profile.py
-wget https://raw.githubusercontent.com/biobakery/MetaPhlAn/master/metaphlan/utils/util_fun.py -O scripts/util_fun.py
-wget https://raw.githubusercontent.com/biobakery/MetaPhlAn/master/metaphlan/utils/mpa_vJan25_CHOCOPhlAnSGB_202503_SGB2GTDB.tsv -O scripts/mpa_vJan25_CHOCOPhlAnSGB_202503_SGB2GTDB.tsv
-wget https://raw.githubusercontent.com/biobakery/MetaPhlAn/master/metaphlan/utils/merge_metaphlan_tables.py -O scripts/merge_metaphlan_tables.py 
+Note: The "long_sample" column is required for the fastqc rule. If your
+raw fastq files do not have these added characters, you can simply make
+the long_sample column identical to the sample_name column. This is a
+quick fix so you don't need to modify the variable calls in downstream
+rules.
 
-# Make sure these scripts have execute permissions
-ls -l scripts/sgb_to_gtdb_profile.py 
-chmod +x scripts/sgb_to_gtdb_profile.py 
-```
-5. Load snakemake v9.11.4 into a conda environment (if necessary):
-```bash
+4.  Load snakemake v9.11.4 into a conda environment (if necessary):
+
+``` bash
 eval "$(mamba shell hook --shell bash)"
 mamba create -n snakemake_env -c conda-forge -c bioconda snakemake=9.11.4
 conda activate snakemake_env
 ```
- 6. Install slurm executor plugin for snakemake v8+ (only needs to be done once), specify version:
- ```bash
+
+5.  Install slurm executor plugin for snakemake v8+ (only needs to be
+    done once), specify version:
+
+``` bash
 pip install snakemake-executor-plugin-slurm==1.9.0
 ```
- 7. Quick check to make sure there are no errors (dry run):
-```bash
+
+6.  Install the dbcan database
+
+``` bash
+```
+
+7.  Quick check to make sure there are no errors (dry run):
+
+``` bash
 snakemake -s scripts/Snakefile --configfile config.yaml -n
 ```
 
-8. Run the pipeline using one of these methods (meant for using HPC with SLURM scheduler):
-* METHOD A - Submit via sbatch script (recommended):
-    ```
-    sbatch scripts/submit_snakefile.sh
-    ````
+8.  Run the pipeline using one of these methods (meant for using HPC
+    with SLURM scheduler):
 
-* METOD B - Run in terminal directly. 
-    ```bash
-    snakemake -s scripts/Snakefile --configfile config.yaml --executor slurm --jobs 20 --use-conda \
-            --default-resources slurm_account=GROUPNAME mem_mb=4096 runtime=600
-    ```
+-   METHOD A - Submit via sbatch script (recommended): \`\`\` sbatch
+    scripts/submit_snakefile.sh \`\`\`\`
 
-9. Monitor progress:
-```bash
+-   METOD B - Run in terminal directly.
+    `bash     snakemake -s scripts/Snakefile --configfile config.yaml --executor slurm --jobs 20 --use-conda \             --default-resources slurm_account=GROUPNAME mem_mb=4096 runtime=600`
+
+9.  Monitor progress:
+
+``` bash
 tail -f logs/snakemake_<jobid>.out
 ```
- REQUIRED DIRECTORY STRUCTURE:
------------------------
+
+## REQUIRED DIRECTORY STRUCTURE:
+
+```         
+project_root/
+│
+├── config/
+│   └── config.yaml                [REQUIRED - edit with your paths]
+│
+├── scripts/
+│   ├── Snakefile_muc2plant.py     [this file]
+│   ├── submit_snakefile.sh        [submit this file with sbatch]
+│   ├── make_sample_sheet
+│   └── calculate_muc2plant.R
+│
+├── envs/
+│   ├── fastqc_multiqc.yaml
+│   ├── bowtie.yaml
+│   ├── fastp.yaml
+│   ├── metaphlan.yaml
+│   ├── megahit.yaml
+│   ├── pyrodigal.yaml
+│   ├── bwa.yaml
+│   ├── samtools.yaml
+│   ├── rundbcan.yaml
+│   └── dbcan_utils.yaml
+│
+├── sample_sheet.txt              [REQUIRED - tab-separated file with sample info]
+│
+└── fastq_files/                  [your input files]
+    ├── sample1_R1.fastq.gz
+    ├── sample1_R2.fastq.gz
+    ├── sample2_R1.fastq.gz
+    └── sample2_R2.fastq.gz
+
+All output directories will be created automatically by Snakemake
 ```
-# project_root/
-# │
-# ├── config/
-# │   └── config.yaml                [REQUIRED - edit with your paths]
-# │
-# ├── scripts/
-# │   ├── Snakefile                  [this file]
-# │   ├── sgb_to_gtdb_profile.py     [required script from MetaPhlAn github]
-# │   ├── util_fun.py                [required script from MetaPhlAn github]
-# │   ├── mpa_vJan25_CHOCOPhlAnSGB_202503_SGB2GTDB.tsv [required for sgb to gtdb script]
-# │   ├── merge_metaphlan_tables.py  [required script from MetaPhlAn github]
-# │   └── submit_snakefile.sh        [submit this file with sbatch]
-# │     ├── envs/
-# │        ├── fastqc_multiqc.yaml
-# │        ├── bowtie.yaml
-# │        ├── fastp.yaml              
-# │        └── metaphlan.yaml  
-# │
-# ├── sample_sheet.txt              [REQUIRED - tab-separated file with sample info]
-# │
-# └── fastq_files/                  [your input files, demultiplexed]
-#     ├── sample1_R1_001.fastq.gz
-#     ├── sample1_R2_001.fastq.gz
-#     ├── sample2_R1_001.fastq.gz
-#     └── sample2_R2_001.fastq.gz
-#
-```
-
-
-
-
-
-
