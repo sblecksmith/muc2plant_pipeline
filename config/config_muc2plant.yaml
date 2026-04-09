@@ -1,0 +1,90 @@
+# Configuration file for the muc2plant snakemake pipeline
+# Edit this file with your system-specific paths and settings
+
+# Project settings
+project_name: "FEEDMe_muc2plant"  # Change to your project name
+
+# Input/Output directories
+input_dir: "fastq_files"
+#input_dir: "/quobyte/dglemaygrp/BACKED-UP/sblecksmith/FEEDMe/FEEDMe_metagenomes/dbcan_tile_test_results/"
+#sample_sheet: "/sample_sheet_dbcan_tile_test.txt"
+
+# Database paths - EDIT THESE FOR YOUR SYSTEM
+# Path to databases dbcan uses
+databases:
+  dbcan_db: "/quobyte/dglemaygrp/BACKED-UP/sblecksmith/FEEDMe/FEEDMe_metagenomes/db"
+
+# Conda environment paths, best to keep this in path/to/project/root
+conda_envs:
+  megahit: "../scripts/envs/megahit.yaml"
+  pyrodigal: "../scripts/envs/pyrodigal.yaml"
+  rundbcan: "../scripts/envs/rundbcan.yaml"
+  samtools: "../scripts/envs/samtools.yaml"
+  bwa: "../scripts/envs/bwa.yaml"
+  dbcan_utils: "../scripts/envs/dbcan_utils.yaml"
+  fastqc_multiqc: "envs/fastqc_multiqc.yaml"
+  bowtie: "envs/bowtie.yaml"
+  fastp: "envs/fastp.yaml"
+  dbcan: "envs/cazyme_annotation.yaml"
+
+
+# Resource allocation (memory in GB, runtime in minutes)
+resources:
+  megahit:
+    threads: 32
+    mem_gb: 128
+    runtime_min: 960
+    
+  pyrodigal:
+    threads: 4
+    mem_gb: 36
+    runtime_min: 480
+    
+  rundbcan:
+    threads: 32
+    mem_gb: 128
+    runtime_min: 960
+    
+  samtools:
+    threads: 8
+    mem_gb: 32
+    runtime_min: 240
+    
+  bwa:
+    threads: 24
+    mem_gb: 128
+    runtime_min: 480
+    
+  dbcan_utils:
+    threads: 4
+    mem_gb: 36
+    runtime_min: 480
+
+  fastqc:
+    threads: 4
+    mem_gb: 16
+    runtime_min: 240
+
+  bowtie2:
+    threads: 8
+    mem_gb: 64
+    runtime_min: 1440  # 24 hours
+
+  fastp_trim:
+    threads: 4
+    mem_gb: 16
+    runtime_min: 360  # 6 hours
+
+  fastp_merge:
+    threads: 4
+    mem_gb: 16
+    runtime_min: 360  # 6 hours
+
+# Quality filtering parameters for fastp
+fastp_params:
+  trim:
+    min_length: 99
+    quality_phred: 30
+  merge:
+    overlap_len_require: 10
+    overlap_diff_percent_limit: 10
