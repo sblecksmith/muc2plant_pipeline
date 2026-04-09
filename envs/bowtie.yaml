@@ -1,0 +1,8 @@
+# bowtie2.yaml
+name: bowtie2
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - bowtie2=2.5.2
+  - python<3.14.0

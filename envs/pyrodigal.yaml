@@ -1,0 +1,8 @@
+name: pyrodigal
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - bioconda::pyrodigal=3.6.3
+  - conda-forge::pigz=2.8
+

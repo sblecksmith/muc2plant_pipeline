@@ -1,0 +1,10 @@
+name: metaphlan
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - metaphlan=4.2.2
+  - bowtie2
+  - samtools
+  - python<3.14.0
