@@ -1,25 +1,12 @@
----
-editor_options: 
-  markdown: 
-    wrap: 72
----
-
 # Muc2plant Snakemake Pipeline
 
-A reproducible Snakemake workflow for calculating the mucin to plant
-CAZyme ratio from 150 bp PE shotgun metagenomic sequencing data. Written
-by Sarah E. Blecksmith (Lemay Lab, UC Davis, USDA) and built from the
-[metagenomics processing
-pipeline](https://github.com/nithyak2/lemaylab_metagenomics_pipeline)
-developed by Nithya K. Kumar (Lemay Lab, UC Davis, USDA).
+A reproducible Snakemake workflow for calculating the mucin to plant CAZyme ratio from 150 bp PE shotgun metagenomic sequencing data. Written by Sarah E. Blecksmith (Lemay Lab, UC Davis, USDA) and built from the [metagenomics processing pipeline](https://github.com/nithyak2/lemaylab_metagenomics_pipeline) developed by Nithya K. Kumar (Lemay Lab, UC Davis, USDA).
 
 In this pipeline, CAZyme genes are annotated with dbcan.
 
-Jinfang Zheng, Qiwei Ge, Yuchen Yan, Xinpeng Zhang, Le Huang, and Yanbin
-Yin. Dbcan3: automated carbohydrate-active enzyme and substrate
-annotation. *Nucleic Acids Research*, pages gkad328, 2023
+Jinfang Zheng, Qiwei Ge, Yuchen Yan, Xinpeng Zhang, Le Huang, and Yanbin Yin. Dbcan3: automated carbohydrate-active enzyme and substrate annotation. *Nucleic Acids Research*, pages gkad328, 2023
 
-The dbcan team has excellent documentation available at:
+The dbcan team has extensive documentation available at:
 
 <https://run-dbcan.readthedocs.io/en/latest/index.html>
 
@@ -27,33 +14,34 @@ They also have a Nextflow pipeline available:
 
 <https://run-dbcan.readthedocs.io/en/latest/nextflow/index.html>
 
-Their workflow has been adapted here in Snakemake in order to build off
-the Lemay Lab metagenomic analysis pipeline created by Nithya K. Kumar.
+Their workflow has been adapted here in Snakemake in order to build off the Lemay Lab metagenomic analysis pipeline created by Nithya K. Kumar.
 
 ------------------------------------------------------------------------
 
 ## Overview
 
-This pipeline streamlines the analysis of shotgun metagenomic sequencing
-data.\
-It performs quality control, removes host reads, profiles microbial
-taxa, and summarizes results in a reproducible and modular framework.
+This pipeline streamlines the analysis of shotgun metagenomic sequencing data.\
+It performs quality control, removes host reads, profiles microbial taxa, and summarizes results in a reproducible and modular framework.
 
-**Core features:** - Automated workflow management using **Snakemake** -
-Reproducible environments using **Conda** - Modular structure for easy
-extension - Example configuration for quick setup
+**Core features:** - Automated workflow management using **Snakemake** - Reproducible environments using **Conda** - Modular structure for easy extension - Example configuration for quick setup
 
 ------------------------------------------------------------------------
 
 ## Workflow Summary
 
-| Step                    | Tool      | Description                             |
-|------------------|------------------|-----------------------------------|
-| 1\. Quality control     | FastQC    | Assess read quality                     |
-| 2\. Host read removal   | Bowtie2   | Remove host reads                       |
-| 3\. Trimming            | Fastp     | Trim adapters and low-quality bases     |
-| 4\. Merging             | Fastp     | Merge paired end reads                  |
-| 5\. Taxonomic profiling | MetaPhlAn | Read based classification from PE reads |
+| Step                   | Tool                  | Description                          |
+|-------------------|-------------------|----------------------------------|
+| 1\. Quality control    | FastQC                | Assess read quality                  |
+| 2\. Host read removal  | Bowtie2               | Remove host reads                    |
+| 3\. Trimming           | Fastp                 | Trim adapters and low-quality bases  |
+| 4\. Merging            | Fastp                 | Merge paired end reads               |
+| 5\. Assembly           | Megahit               | Assemble into contigs                |
+| 6\. Gene calling       | Pyrodigal             | Predicts genes                       |
+| 7\. CAZyme annotation  | run_dbcan             | Identify CAZymes with dbcan database |
+| 8\. Read mapping       | bwa, samtools         | Map contigs back to reads            |
+| 9\. Calculate coverage | dbcan_utils           | Count reads per gene                 |
+| 10\. Family abundance  | dbcan_utils           | Outputs CAZyme family abundance      |
+| 11\. Muc2plant         | calculate_muc2plant.R | Calculates mucin to plant ratio      |
 
 ## snakemake simplified DAG (rulegraph)
 
@@ -61,26 +49,18 @@ extension - Example configuration for quick setup
 
 ------------------------------------------------------------------------
 
-## Clone the repository
+## Instructions
+
+1.  Clone the repository
 
 ``` bash
 git clone https://github.com/sblecksmith/muc2plant_pipeline
 cd muc2plant_pipeline
 ```
 
-| USAGE INSTRUCTIONS                    |
-|---------------------------------------|
-| . Navigate to project root directory: |
-| \`\`bash                              |
-| cd /path/to/project_root              |
-| \`\`                                  |
+2.  Copy config/config_muc2plant.yaml and edit the paths for your system. **This should be the only file you need to edit, you should not need to edit the Snakefile**
 
-2.  Copy config/config_muc2plant.yaml and edit the paths for your
-    system. **This should be the only file you need to edit, you should
-    not need to edit the Snakefile**
-
-3.  Create sample sheet (sample_sheet.txt) with columns: sample_name,
-    long sample, r1_path, r2_path
+3.  Create sample sheet (sample_sheet.txt) with columns: sample_name, long sample, r1_path, r2_path
 
     Use the code below, also in scripts/make_sample_sheet.sh
 
@@ -103,11 +83,7 @@ cd muc2plant_pipeline
 # 109_C1_N  109_C1_N_S66_L006   fastq_files/109_C1_N_S66_L006_R1_001.fastq.gz   fastq_files/109_C1_N_S66_L006_R2_001.fastq.gz
 ```
 
-Note: The "long_sample" column is required for the fastqc rule. If your
-raw fastq files do not have these added characters, you can simply make
-the long_sample column identical to the sample_name column. This is a
-quick fix so you don't need to modify the variable calls in downstream
-rules.
+Note: The "long_sample" column is required for the fastqc rule. If your raw fastq files do not have these added characters, you can simply make the long_sample column identical to the sample_name column. This is a quick fix so you don't need to modify the variable calls in downstream rules.
 
 4.  Load snakemake v9.11.4 into a conda environment (if necessary):
 
@@ -117,32 +93,33 @@ mamba create -n snakemake_env -c conda-forge -c bioconda snakemake=9.11.4
 conda activate snakemake_env
 ```
 
-5.  Install slurm executor plugin for snakemake v8+ (only needs to be
-    done once), specify version:
+5.  Install slurm executor plugin for snakemake v8+ (only needs to be done once), specify version:
 
 ``` bash
 pip install snakemake-executor-plugin-slurm==1.9.0
 ```
 
-6.  Install the dbcan database
+6.  Install the dbcan databases
 
-``` bash
-```
+    This can be done manually or using the rundbcan database command. Please see the rundcan documentation for complete installation instructions.
+
+    <https://run-dbcan.readthedocs.io/en/latest/user_guide/prepare_the_database.html>
+
+    Not all of the databases are required for calculating muc2plant but downloading them all with rundbcan database is preferred to ensure they are set up correctly.
+
+    The databases should be in a db folder under the project root. The path is specified in the config file.
 
 7.  Quick check to make sure there are no errors (dry run):
 
 ``` bash
-snakemake -s scripts/Snakefile --configfile config.yaml -n
+snakemake -s scripts/Snakefile --configfile config/config_muc2plant.yaml -n
 ```
 
-8.  Run the pipeline using one of these methods (meant for using HPC
-    with SLURM scheduler):
+8.  Run the pipeline using one of these methods (meant for using HPC with SLURM scheduler):
 
--   METHOD A - Submit via sbatch script (recommended): \`\`\` sbatch
-    scripts/submit_snakefile.sh \`\`\`\`
+-   METHOD A - Submit via sbatch script (recommended): \`\`\` sbatch scripts/submit_snakefile.sh \`\`\`\`
 
--   METOD B - Run in terminal directly.
-    `bash     snakemake -s scripts/Snakefile --configfile config.yaml --executor slurm --jobs 20 --use-conda \             --default-resources slurm_account=GROUPNAME mem_mb=4096 runtime=600`
+-   METOD B - Run in terminal directly. `bash     snakemake -s scripts/Snakefile --configfile config.yaml --executor slurm --jobs 20 --use-conda \             --default-resources slurm_account=GROUPNAME mem_mb=4096 runtime=600`
 
 9.  Monitor progress:
 
@@ -164,6 +141,21 @@ project_root/
 │   ├── make_sample_sheet
 │   └── calculate_muc2plant.R
 │
+├── db/
+|   ├── CAZy.dmnd    
+│   ├── dbCAN-PUL/       
+│   ├── dbCAN-PUL.xlsx
+|   ├── dbCAN-sub.hmm    
+│   ├── dbCAN.hmm       
+│   ├── fam-substrate-mapping.tsv
+|   ├── peptidase_db.dmnd    
+│   ├── PUL.dmnd       
+│   ├── sulfatlas_db.dmnd
+|   ├── TCDB.dmnd    
+│   ├── TF.dmnd       
+│   ├── TF.hmm
+│   
+|
 ├── envs/
 │   ├── fastqc_multiqc.yaml
 │   ├── bowtie.yaml
