@@ -49,6 +49,20 @@
 # │   ├── make_sample_sheet
 # │   └── calculate_muc2plant.R       
 # │
+# ├── db/
+# |   ├── CAZy.dmnd    
+# │   ├── dbCAN-PUL/       
+# │   ├── dbCAN-PUL.xlsx
+# |   ├── dbCAN-sub.hmm    
+# │   ├── dbCAN.hmm       
+# │   ├── fam-substrate-mapping.tsv
+# |   ├── peptidase_db.dmnd    
+# │   ├── PUL.dmnd       
+# │   ├── sulfatlas_db.dmnd
+# |   ├── TCDB.dmnd    
+# │   ├── TF.dmnd       
+# │   ├── TF.hmm
+# │   
 # ├── envs/
 # │   ├── fastqc_multiqc.yaml
 # │   ├── bowtie.yaml
