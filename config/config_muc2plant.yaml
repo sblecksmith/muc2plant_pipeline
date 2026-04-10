@@ -12,6 +12,7 @@ sample_sheet: "sample_sheet.txt"
 # Path to databases dbcan uses
 databases:
   dbcan_db: "db"
+  human_genome: "path/to/human/genome"
 
 # Conda environment paths, best to keep this in path/to/project/root
 conda_envs:
