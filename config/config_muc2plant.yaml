@@ -16,16 +16,16 @@ databases:
 
 # Conda environment paths, best to keep this in path/to/project/root
 conda_envs:
-  megahit: "envs/megahit.yaml"
-  pyrodigal: "envs/pyrodigal.yaml"
-  rundbcan: "envs/rundbcan.yaml"
-  samtools: "envs/samtools.yaml"
-  bwa: "envs/bwa.yaml"
-  dbcan_utils: "envs/dbcan_utils.yaml"
-  fastqc_multiqc: "envs/fastqc_multiqc.yaml"
-  bowtie: "envs/bowtie.yaml"
-  fastp: "envs/fastp.yaml"
-  dbcan: "envs/cazyme_annotation.yaml"
+  megahit: "../envs/megahit.yaml"
+  pyrodigal: "../envs/pyrodigal.yaml"
+  rundbcan: "../envs/rundbcan.yaml"
+  samtools: "../envs/samtools.yaml"
+  bwa: "../envs/bwa.yaml"
+  dbcan_utils: "../envs/dbcan_utils.yaml"
+  fastqc_multiqc: "../envs/fastqc_multiqc.yaml"
+  bowtie: "../envs/bowtie.yaml"
+  fastp: "../envs/fastp.yaml"
+  dbcan: "../envs/cazyme_annotation.yaml"
 
 
 # Resource allocation (memory in GB, runtime in minutes)
