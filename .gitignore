@@ -1,6 +1,18 @@
 # Ignore raw data
 fastq_files/
 
+# Ignore test output
+bowtie2_output/
+fastqc_output/
+fastqc_summary/
+fastp_output/
+megahit_output/
+pyrodigal_output/
+bwa_output/
+rundcan_output/
+aggregated_cazyme_family_TPM.tsv
+muc2plant.tsv
+
 # Ignore local or custom config files
 config/config_lemaylab.yaml
 
