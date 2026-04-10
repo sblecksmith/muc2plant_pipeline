@@ -428,7 +428,7 @@ rule summarize_fastp_reports:
             out_merged.write("sample_id\tbefore_filtering_total_reads\tafter_filtering_total_reads\tlow_quality_reads\ttoo_many_N_reads\ttoo_short_reads\tduplication_rate\tinsert_peak\tpercent_lost\n")
 
             for sample in SAMPLES:
-                report_file = f"step2_fastp/merged/reports/{sample}.fastp.json"
+                report_file = f"fastp_output/merged/reports/{sample}.fastp.json"
                 with open(report_file) as f:
                     data = json.load(f)
 
