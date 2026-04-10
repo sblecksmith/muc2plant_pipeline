@@ -107,13 +107,14 @@
 import pandas as pd
 
 # Load configuration file
-configfile: "config/config_muc2plant.yaml"
+#configfile: "config/config_muc2plant.yaml"
+configfile: "config/config_lemaylab.yaml"
 
-# Path to sample sheet (tab-separated: sample_name, r1_path, r2_path)
+# Path to sample sheet (tab-separated: sample_name, long_sample r1_path, r2_path)
 SAMPLE_SHEET = config["sample_sheet"]
 
 # Read sample sheet and define samples
-samples_df = pd.read_csv(SAMPLE_SHEET, sep=",")
+samples_df = pd.read_csv(SAMPLE_SHEET, sep="\t")
 SAMPLES = samples_df['sample_name'].tolist()
 
 # fastqc outputs long sample names, define that here
@@ -148,7 +149,7 @@ rule all:
         # This will trigger the summary reports
         "fastp_output/pairedend/reports/pairedend_summary.txt",
         "fastp_output/merged/reports/merged_summary.txt",
-        "fastp_output/human_read_loss_summary.txt",
+        "bowtie2_output/human_read_loss_summary.txt",
         
         # This will trigger megahit
         expand("megahit_output/{sample}.contigs.fa.gz", sample=SAMPLES),
@@ -176,13 +177,13 @@ rule all:
 ########################################
 rule fastqc:
     input:
-        r1=f"{INPUT_DIR}/{{long_samples}}_R1_001.fastq.gz",
-        r2=f"{INPUT_DIR}/{{long_samples}}_R2_001.fastq.gz"
+        r1=f"{INPUT_DIR}/{{long_samples}}_R1.fastq.gz",
+        r2=f"{INPUT_DIR}/{{long_samples}}_R2.fastq.gz"
     output:
-        html1="fastqc_output/{long_samples}_R1_001_fastqc.html",
-        zipped1="fastqc_output/{long_samples}_R1_001_fastqc.zip",
-        html2="fastqc_output/{long_samples}_R2_001_fastqc.html",
-        zipped2="fastqc_output/{long_samples}_R2_001_fastqc.zip"
+        html1="fastqc_output/{long_samples}_R1.fastqc.html",
+        zipped1="fastqc_output/{long_samples}_R1.fastqc.zip",
+        html2="fastqc_output/{long_samples}_R2.fastqc.html",
+        zipped2="fastqc_output/{long_samples}_R2.fastqc.zip"
     threads: config["resources"]["fastqc"]["threads"]
     resources:
         mem_mb=config["resources"]["fastqc"]["mem_gb"]*GB,
@@ -199,8 +200,8 @@ rule fastqc:
 ########################################
 rule multiqc:
     input:
-        expand("fastqc_output/{long_samples}_R1_001_fastqc.html", long_samples=LONG_SAMPLES),
-        expand("fastqc_output/{long_samples}_R2_001_fastqc.html", long_samples=LONG_SAMPLES)
+        expand("fastqc_output/{long_samples}_R1.fastqc.html", long_samples=LONG_SAMPLES),
+        expand("fastqc_output/{long_samples}_R2.fastqc.html", long_samples=LONG_SAMPLES)
     output:
         "fastqc_summary/multiqc_report.html"
     conda:
@@ -579,9 +580,9 @@ rule run_dbcan:
 
 rule bwa_sam_contigs:
     input:
-        r1="/quobyte/dglemaygrp/sblecksmith/filterbytile_test/{sample}_R1_filtered.fastq.gz",
-        r2="/quobyte/dglemaygrp/sblecksmith/filterbytile_test/{sample}_R2_filtered_synced.fastq.gz",
-        contig="megahit/{sample}.contigs.fa.gz",
+        r1="fastp_output/pairedend/{sample}_R1_paired.fastq.gz",
+        r2="fastp_output/pairedend/{sample}_R2_paired.fastq.gz",
+        contig="megahit_output/{sample}.contigs.fa.gz",
     output:
         bam="bwa_output/{sample}.bam",
         bai="bwa_output/{sample}.bam.bai",
@@ -672,40 +673,36 @@ rule fam_abund:
 #######################################
 # aggregate_cazyme_families
 ########################################
-import pandas as pd
-from pathlib import Path
+rule aggregate_cazymes:
+  input:
+        expand("rundbcan_output/{sample}_abund/fam_abund.out", sample=SAMPLES)
+  output:
+        "aggregated_cazyme_family_TPM.tsv"
+  run: 
+        import pandas as pd
+        from pathlib import Path
 
-# Find all CAZyme files
-files = Path("rundbcan_output").glob("*_abund/fam_abund.out")
+        dfs = []
+        for f in input:
 
-dfs = []
-for f in files:
-
-    # Extract sample name
-    sample_id = f.parent.name.replace("_abund", "")
-
-    # Read the file
-    df = pd.read_csv(f, sep="\t")
-
-    # Keep only Family and Abundance columns
-    df = df[['Family', 'Abundance']]
-
-    # Rename Abundance to sample name
-    df = df.rename(columns={'Abundance': sample_id})
-
-    # Set Family as index for merging
-    df = df.set_index('Family')
-
-    dfs.append(df)
-
-# Merge all dataframes on Family (outer join to keep all families)
-combined = pd.concat(dfs, axis=1, join='outer')
-
-# Fill missing values with 0
-combined = combined.fillna(0)
-
-# Save with Family as first column
-combined.to_csv("aggregated_cazyme_family_TPM.tsv", sep="\t")
+            # Extract sample name
+            sample_id = Path(f).parent.name.replace("_abund", "")
+            # Read the file
+            df = pd.read_csv(f, sep="\t")
+            # Keep only Family and Abundance columns
+            df = df[['Family', 'Abundance']]
+            # Rename Abundance to sample name
+            df = df.rename(columns={'Abundance': sample_id})
+            # Set Family as index for merging
+            df = df.set_index('Family')
+            dfs.append(df)
+        
+            # Merge all dataframes on Family (outer join to keep all families)
+            combined = pd.concat(dfs, axis=1, join='outer')
+            # Fill missing values with 0
+            combined = combined.fillna(0)
+            # Save with Family as first column
+            combined.to_csv(output[0], sep="\t")
 
 
 #######################################
@@ -714,13 +711,13 @@ combined.to_csv("aggregated_cazyme_family_TPM.tsv", sep="\t")
 rule calculate_muc2plant:
     input:
         cazyme_abund="aggregated_cazyme_family_TPM.tsv",
-        fams="smits_cazyme_substrates_sep.csv",
+        substrate="scripts/cazyme_substrates_sep.csv",
     output:
         muc2plant="muc2plant.tsv"
     params:
     shell:
         """
-        Rscript calculate_muc2plant.R --input {input.cazyme_abund} --families {input.fams} --output {output.muc2plant}
+        Rscript scripts/calculate_muc2plant.R --input {input.cazyme_abund} --substrate {input.substrate} --output {output.muc2plant}
         
         """        
 
