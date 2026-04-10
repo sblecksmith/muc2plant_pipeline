@@ -6,8 +6,7 @@ project_name: "FEEDMe_muc2plant"  # Change to your project name
 
 # Input/Output directories
 input_dir: "fastq_files"
-#input_dir: "/quobyte/dglemaygrp/BACKED-UP/sblecksmith/FEEDMe/FEEDMe_metagenomes/dbcan_tile_test_results/"
-#sample_sheet: "/sample_sheet_dbcan_tile_test.txt"
+sample_sheet: "sample_sheet.txt"
 
 # Database paths - EDIT THESE FOR YOUR SYSTEM
 # Path to databases dbcan uses
