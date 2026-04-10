@@ -593,7 +593,7 @@ rule bwa_sam_contigs:
         sa="bwa_output/bwa_{sample}/{sample}.sa",
     conda: config["conda_envs"]["bwa"],
     params:
-        index_prefix="bwa/bwa_{sample}/{sample}",
+        index_prefix="bwa_output/bwa_{sample}/{sample}",
     resources:
         mem_mb=config["resources"]["bwa"]["mem_gb"]*GB,
         runtime=config["resources"]["bwa"]["runtime_min"],
