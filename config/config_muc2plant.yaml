@@ -2,7 +2,7 @@
 # Edit this file with your system-specific paths and settings
 
 # Project settings
-project_name: "FEEDMe_muc2plant"  # Change to your project name
+project_name: "XXXX_muc2plant"  # Change to your project name
 
 # Input/Output directories
 input_dir: "fastq_files"
@@ -11,16 +11,16 @@ sample_sheet: "sample_sheet.txt"
 # Database paths - EDIT THESE FOR YOUR SYSTEM
 # Path to databases dbcan uses
 databases:
-  dbcan_db: "/quobyte/dglemaygrp/BACKED-UP/sblecksmith/FEEDMe/FEEDMe_metagenomes/db"
+  dbcan_db: "db"
 
 # Conda environment paths, best to keep this in path/to/project/root
 conda_envs:
-  megahit: "../scripts/envs/megahit.yaml"
-  pyrodigal: "../scripts/envs/pyrodigal.yaml"
-  rundbcan: "../scripts/envs/rundbcan.yaml"
-  samtools: "../scripts/envs/samtools.yaml"
-  bwa: "../scripts/envs/bwa.yaml"
-  dbcan_utils: "../scripts/envs/dbcan_utils.yaml"
+  megahit: "envs/megahit.yaml"
+  pyrodigal: "envs/pyrodigal.yaml"
+  rundbcan: "envs/rundbcan.yaml"
+  samtools: "envs/samtools.yaml"
+  bwa: "envs/bwa.yaml"
+  dbcan_utils: "envs/dbcan_utils.yaml"
   fastqc_multiqc: "envs/fastqc_multiqc.yaml"
   bowtie: "envs/bowtie.yaml"
   fastp: "envs/fastp.yaml"
