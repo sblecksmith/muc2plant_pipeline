@@ -180,10 +180,10 @@ rule fastqc:
         r1=f"{INPUT_DIR}/{{long_samples}}_R1.fastq.gz",
         r2=f"{INPUT_DIR}/{{long_samples}}_R2.fastq.gz"
     output:
-        html1="fastqc_output/{long_samples}_R1.fastqc.html",
-        zipped1="fastqc_output/{long_samples}_R1.fastqc.zip",
-        html2="fastqc_output/{long_samples}_R2.fastqc.html",
-        zipped2="fastqc_output/{long_samples}_R2.fastqc.zip"
+        html1="fastqc_output/{long_samples}_R1_fastqc.html",
+        zipped1="fastqc_output/{long_samples}_R1_fastqc.zip",
+        html2="fastqc_output/{long_samples}_R2_fastqc.html",
+        zipped2="fastqc_output/{long_samples}_R2_fastqc.zip"
     threads: config["resources"]["fastqc"]["threads"]
     resources:
         mem_mb=config["resources"]["fastqc"]["mem_gb"]*GB,
@@ -200,8 +200,8 @@ rule fastqc:
 ########################################
 rule multiqc:
     input:
-        expand("fastqc_output/{long_samples}_R1.fastqc.html", long_samples=LONG_SAMPLES),
-        expand("fastqc_output/{long_samples}_R2.fastqc.html", long_samples=LONG_SAMPLES)
+        expand("fastqc_output/{long_samples}_R1_fastqc.html", long_samples=LONG_SAMPLES),
+        expand("fastqc_output/{long_samples}_R2_fastqc.html", long_samples=LONG_SAMPLES)
     output:
         "fastqc_summary/multiqc_report.html"
     conda:
