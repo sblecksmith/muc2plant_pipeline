@@ -107,7 +107,7 @@
 import pandas as pd
 
 # Load configuration file
-configfile: "../config/config_muc2plant.yaml"
+configfile: "config/config_muc2plant.yaml"
 
 # Path to sample sheet (tab-separated: sample_name, r1_path, r2_path)
 SAMPLE_SHEET = config["sample_sheet"]
@@ -137,7 +137,6 @@ GB = 1024
 
 # Snakemake works backwards. Specify the final files you want to check for
 # if you don't specify all of the required output files, some rules will not run
-
 rule all:
     input:
         # This will trigger the entire fastp pipeline
@@ -170,7 +169,7 @@ rule all:
         expand("rundbcan_output/{sample}_abund/fam_abund.out", sample=SAMPLES),
         
         # This will trigger calculate_muc2plant
-        expand("muc2plant.tsv),
+        "muc2plant.tsv",
         
 ########################################
 # fastqc
