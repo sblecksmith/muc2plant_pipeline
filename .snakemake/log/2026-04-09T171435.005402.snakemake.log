@@ -1,8 +1,0 @@
-FileNotFoundError in file "/quobyte/dglemaygrp/BACKED-UP/sblecksmith/muc2plant_pipeline/scripts/Snakefile_muc2plant.py", line 116:
-[Errno 2] No such file or directory: '/sample_sheet.txt'
-  File "/quobyte/dglemaygrp/BACKED-UP/sblecksmith/muc2plant_pipeline/scripts/Snakefile_muc2plant.py", line 116, in <module>
-  File "/home/sbleck/.local/lib/python3.13/site-packages/pandas/io/parsers/readers.py", line 1026, in read_csv
-  File "/home/sbleck/.local/lib/python3.13/site-packages/pandas/io/parsers/readers.py", line 620, in _read
-  File "/home/sbleck/.local/lib/python3.13/site-packages/pandas/io/parsers/readers.py", line 1620, in __init__
-  File "/home/sbleck/.local/lib/python3.13/site-packages/pandas/io/parsers/readers.py", line 1880, in _make_engine
-  File "/home/sbleck/.local/lib/python3.13/site-packages/pandas/io/common.py", line 873, in get_handle

@@ -1,2 +1,0 @@
-WorkflowError in file "/quobyte/dglemaygrp/BACKED-UP/sblecksmith/muc2plant_pipeline/scripts/Snakefile_muc2plant.py", line 110:
-Workflow defines configfile ../config/config_muc2plant.yaml but it is not present or accessible (full checked path: /quobyte/dglemaygrp/BACKED-UP/sblecksmith/config/config_muc2plant.yaml).
