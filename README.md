@@ -30,7 +30,7 @@ It performs quality control, removes host reads, profiles microbial taxa, and su
 ## Workflow Summary
 
 | Step                   | Tool                  | Description                          |
-|-------------------|-------------------|----------------------------------|
+|---------------------|--------------------|-------------------------------|
 | 1\. Quality control    | FastQC                | Assess read quality                  |
 | 2\. Host read removal  | Bowtie2               | Remove host reads                    |
 | 3\. Trimming           | Fastp                 | Trim adapters and low-quality bases  |
@@ -43,7 +43,7 @@ It performs quality control, removes host reads, profiles microbial taxa, and su
 | 10\. Family abundance  | dbcan_utils           | Outputs CAZyme family abundance      |
 | 11\. Muc2plant         | calculate_muc2plant.R | Calculates mucin to plant ratio      |
 
-## snakemake simplified DAG (rulegraph)
+## Snakemake rulegraph
 
 ![main](pipeline_DAG.png)
 
@@ -124,7 +124,7 @@ snakemake -s scripts/Snakefile --configfile config/config_muc2plant.yaml -n
 9.  Monitor progress:
 
 ``` bash
-tail -f logs/snakemake_<jobid>.out
+tail -f logs/snakemake_controller<jobid>.out
 ```
 
 ## REQUIRED DIRECTORY STRUCTURE:
