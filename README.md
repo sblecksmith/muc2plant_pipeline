@@ -2,6 +2,8 @@
 
 A reproducible Snakemake workflow for calculating the mucin to plant CAZyme ratio from 150 bp PE shotgun metagenomic sequencing data. Written by Sarah E. Blecksmith (Lemay Lab, UC Davis, USDA) and built from the [metagenomics processing pipeline](https://github.com/nithyak2/lemaylab_metagenomics_pipeline) developed by Nithya K. Kumar (Lemay Lab, UC Davis, USDA).
 
+We used the plant and mucin substrate annotations from [Smits, et al](https://www.science.org/doi/full/10.1126/science.aan4834). We found that separating out the CAZyme families that uniquely broke down plant OR mucin and didn't overlap with any other substrates provided the best signal in our [cohort study](https://doi.org/10.1016/j.tjnut.2025.08.027) of healthy adults consuming their regular diets. For example, this meant that GH2 was not included in the calculation because it has members that break down plant, animal and mucin substrates. The cazyme annotation file provided here, cazyme_substrates_sep.csv, contains only CAZyme families unique to each substrate. A different annotation scheme can be substituted. The format is two columns - cazyme family and substrate.
+
 In this pipeline, CAZyme genes are annotated with dbcan.
 
 Jinfang Zheng, Qiwei Ge, Yuchen Yan, Xinpeng Zhang, Le Huang, and Yanbin Yin. Dbcan3: automated carbohydrate-active enzyme and substrate annotation. *Nucleic Acids Research*, pages gkad328, 2023
