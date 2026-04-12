@@ -714,10 +714,114 @@ rule calculate_muc2plant:
         substrate="scripts/cazyme_substrates_sep.csv",
     output:
         muc2plant="muc2plant.tsv"
-    params:
-    shell:
-        """
-        Rscript scripts/calculate_muc2plant.R --input {input.cazyme_abund} --substrate {input.substrate} --output {output.muc2plant}
+    log:
+        "logs/muc2plant.log"
+    run:
+        from collections import defaultdict
+        import pandas as pd
+        import re
+        import sys
         
-        """        
+      
+        log_handle = open(log[0], 'w')
+        sys.stdout = log_handle
+        sys.stderr = log_handle
+        
+        try:
+          
+            def get_base_family(cazyme_name):
+                # Match pattern: letters followed by numbers, optionally followed by _subfamily
+                match = re.match(r'^([A-Z]+\d+)', cazyme_name)
+                if match:
+                    return match.group(1)
+                return cazyme_name
+            
+            def parse_substrate(substrate):
+                mapping = {}
+                with open(substrate, 'r') as f:
+                    for line_num, line in enumerate(f, 1):
+                        line = line.strip()
+                        if not line or line.startswith('#'):
+                           continue
+                        parts = line.split(',')
+                        cazyme = parts[0].strip().strip('"').strip("'")
+                        substrate = parts[1].strip().strip('"').strip("'")
+                        # Skip potential header line
+                        if line_num == 1 and (cazyme.lower() in ['cazyme', 'family', 'cazy', 'cazyme_family'] or 
+                                   substrate.lower() == 'substrate'):
+                            continue
+                        mapping[cazyme] = substrate
+                        
+                return mapping
+           
+            
+            def parse_fam_abund(cazyme_abund):
+                with open(cazyme_abund, 'r') as f:
+                    lines = [line.strip() for line in f if line.strip()]
+                    header = lines[0].split('\t')
+                    samples = header[1:]  
+                
+                    abund_data = {}
+                    for line in lines[1:]:
+                        parts = line.split('\t')
+                        cazyme = parts[0].strip()
+                        counts = []
+                        for val in parts[1:]:
+                            try:
+                                counts.append(float(val))
+                            except ValueError:
+                                counts.append(0.0)
+                        abund_data[cazyme] = counts
+                return samples, abund_data
+            
+            def aggregate_by_substrate(abund_data, substrate_mapping, samples):
+                substrate_totals = defaultdict(lambda: [0.0] * len(samples))
+                matched_as_subfamily = set()
+                
+                for cazyme, counts in abund_data.items():
+                    if cazyme in substrate_mapping:
+                        substrate = substrate_mapping[cazyme]
+                        for i, count in enumerate(counts):
+                            substrate_totals[substrate][i] += count
+                    else:
+                        base_family = get_base_family(cazyme)
+                        if base_family != cazyme and base_family in substrate_mapping:
+                            substrate = substrate_mapping[base_family]
+                            for i, count in enumerate(counts):
+                                substrate_totals[substrate][i] += count
+                            
+                return dict(substrate_totals)
+            
+            
+            def write_output(output_file, samples, substrate_totals):
+                with open(output_file, 'w') as f:
+                    substrates = sorted(substrate_totals.keys())
+                    f.write('Sample\t' + '\t'.join(substrates) + '\t' + 'muc2plant\n')
+        
+                    # Write each sample as a row
+                    for i, sample in enumerate(samples):
+                        counts = [f'{substrate_totals[substrate][i]:.2f}' for substrate in substrates]
+            
+                        # Calculate ratio
+                        mucin_count = substrate_totals.get('mucin', [0] * len(samples))[i]
+                        plant_count = substrate_totals.get('plant', [0] * len(samples))[i]
+                        ratio = mucin_count / plant_count if plant_count > 0 else 0.0
+                        f.write(f'{sample}\t{"\t".join(counts)}\t{ratio:.4f}\n')
+            
+            
+            
+            substrate_mapping = parse_substrate(input.substrate)
+            samples, abund_data = parse_fam_abund(input.cazyme_abund)
+            substrate_totals = aggregate_by_substrate(abund_data, substrate_mapping, samples)
+            write_output(output.muc2plant, samples, substrate_totals)
+            
+        except Exception as e:
+            print(f"Error: {e}")
+            import traceback
+            traceback.print_exc()
+            raise
+        
+        finally:
+            log_handle.close()
+
 
