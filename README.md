@@ -117,9 +117,18 @@ snakemake -s scripts/Snakefile --configfile config/config_muc2plant.yaml -n
 
 8.  Run the pipeline using one of these methods (meant for using HPC with SLURM scheduler):
 
--   METHOD A - Submit via sbatch script (recommended): \`\`\` sbatch scripts/submit_snakefile.sh \`\`\`\`
+-   METHOD A - Submit via sbatch script (recommended):
 
--   METOD B - Run in terminal directly. `bash     snakemake -s scripts/Snakefile --configfile config.yaml --executor slurm --jobs 20 --use-conda \             --default-resources slurm_account=GROUPNAME mem_mb=4096 runtime=600`
+``` bash
+sbatch scripts/submit_snakefile.sh
+```
+
+-   METHOD B - Run in terminal directly.
+
+``` bash
+snakemake -s scripts/Snakefile --configfile config.yaml --executor slurm --jobs 20 \
+--use-conda --default-resources slurm_partition=GROUPNAME mem_mb=4096 runtime=600
+```
 
 9.  Monitor progress:
 
