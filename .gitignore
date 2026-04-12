@@ -10,8 +10,10 @@ megahit_output/
 pyrodigal_output/
 bwa_output/
 rundcan_output/
+logs/
 aggregated_cazyme_family_TPM.tsv
 muc2plant.tsv
+rcalc_muc2plant.tsv
 
 # Ignore local or custom config files
 config/config_lemaylab.yaml
