@@ -108,7 +108,7 @@ import pandas as pd
 
 # Load configuration file
 #configfile: "config/config_muc2plant.yaml"
-configfile: "config/config_lemaylab.yaml"
+configfile: "config/config_muc2plant.yaml"
 
 # Path to sample sheet (tab-separated: sample_name, long_sample r1_path, r2_path)
 SAMPLE_SHEET = config["sample_sheet"]
