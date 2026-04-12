@@ -30,7 +30,7 @@ It performs quality control, removes host reads, profiles microbial taxa, and su
 ## Workflow Summary
 
 | Step                   | Tool                  | Description                          |
-|---------------------|--------------------|-------------------------------|
+|------------------------|-----------------------|--------------------------------------|
 | 1\. Quality control    | FastQC                | Assess read quality                  |
 | 2\. Host read removal  | Bowtie2               | Remove host reads                    |
 | 3\. Trimming           | Fastp                 | Trim adapters and low-quality bases  |
