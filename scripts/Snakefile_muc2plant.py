@@ -177,13 +177,13 @@ rule all:
 ########################################
 rule fastqc:
     input:
-        r1=f"{INPUT_DIR}/{{long_samples}}_R1.fastq.gz",
-        r2=f"{INPUT_DIR}/{{long_samples}}_R2.fastq.gz"
+        r1=f"{INPUT_DIR}/{{long_samples}}_R1_001.fastq.gz",
+        r2=f"{INPUT_DIR}/{{long_samples}}_R2_001.fastq.gz"
     output:
-        html1="fastqc_output/{long_samples}_R1_fastqc.html",
-        zipped1="fastqc_output/{long_samples}_R1_fastqc.zip",
-        html2="fastqc_output/{long_samples}_R2_fastqc.html",
-        zipped2="fastqc_output/{long_samples}_R2_fastqc.zip"
+        html1="fastqc_output/{long_samples}_R1_001_fastqc.html",
+        zipped1="fastqc_output/{long_samples}_R1_001_fastqc.zip",
+        html2="fastqc_output/{long_samples}_R2_001_fastqc.html",
+        zipped2="fastqc_output/{long_samples}_R2_001_fastqc.zip"
     threads: config["resources"]["fastqc"]["threads"]
     resources:
         mem_mb=config["resources"]["fastqc"]["mem_gb"]*GB,
@@ -200,8 +200,8 @@ rule fastqc:
 ########################################
 rule multiqc:
     input:
-        expand("fastqc_output/{long_samples}_R1_fastqc.html", long_samples=LONG_SAMPLES),
-        expand("fastqc_output/{long_samples}_R2_fastqc.html", long_samples=LONG_SAMPLES)
+        expand("fastqc_output/{long_samples}_R1_001_fastqc.html", long_samples=LONG_SAMPLES),
+        expand("fastqc_output/{long_samples}_R2_001_fastqc.html", long_samples=LONG_SAMPLES)
     output:
         "fastqc_summary/multiqc_report.html"
     conda:
@@ -212,7 +212,7 @@ rule multiqc:
         """
 
 #######################################
-# Step 1: Remove human reads
+# Remove human reads
 # run bowtie2-build command if needed, only need to run once
 # Example: bowtie2-build /path/to/human_genome.fna /path/to/human_genome
 #######################################
@@ -245,7 +245,7 @@ rule remove_human:
         """
 
 ########################################
-# Step 1.1: Zip reads to save space
+# Zip reads to save space
 ########################################
 rule zip_reads:
     input:
@@ -262,7 +262,7 @@ rule zip_reads:
         """
 
 ########################################
-# Step 1.2: Summarize reads lost (per sample)
+# Summarize reads lost (per sample)
 ########################################
 rule summarize_human_read_loss_per_sample:
     input:
@@ -294,7 +294,7 @@ rule summarize_human_read_loss_per_sample:
             out.write(f"{wildcards.sample}\t{total_reads}\t{remaining_reads}\t{percent_lost:.2f}\n")
 
 ########################################
-# Step 1.3: Aggregate all sample summaries
+# Aggregate all human read loss sample summaries
 ########################################
 rule aggregate_human_read_loss:
     input:
@@ -311,7 +311,7 @@ rule aggregate_human_read_loss:
         """
 
 ########################################
-# Step 2: Quality trimming with fastp
+# Quality trimming with fastp
 # This first pass saves paired end reads 
 ########################################
 rule trim_quality:
@@ -348,7 +348,7 @@ rule trim_quality:
         """
 
 ########################################
-# Step 2.1: Merge paired reads with fastp
+# Merge paired reads with fastp
 ########################################
 rule merge_reads:
     input:
@@ -385,7 +385,7 @@ rule merge_reads:
         """
 
 ########################################
-# Step 2.2: Summarize fastp reports
+# Summarize fastp reports
 ########################################
 rule summarize_fastp_reports:
     input:
@@ -629,7 +629,6 @@ rule cal_coverage:
         bai="bwa_output/{sample}.bam.bai",
     output:
         depth="rundbcan_output/{sample}_abund/{sample}.depth.txt",
-        #depth_dir=directory("samtools/{sample}_samtools_depth")
     conda: config["conda_envs"]["dbcan_utils"]
     threads: config["resources"]["dbcan_utils"]["threads"]
     shadow: "minimal"
